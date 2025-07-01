@@ -1,4 +1,4 @@
-[build][build]
+[build]
   functions = "netlify/functions"
   publish = "public" # This is the publish directory for your site, not functions
 
