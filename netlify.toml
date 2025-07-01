@@ -1,7 +1,5 @@
 [build]
   publish = "public"
-  command = "ls -la netlify/functions/" # TEMPORARY: This will list directory contents in build logs
 
 [functions]
   directory = "netlify/functions"
-  python_version = "3.9"
