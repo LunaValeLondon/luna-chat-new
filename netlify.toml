@@ -1,10 +1,9 @@
 [build]
   functions = "netlify/functions"
-  # Optionally, if you had a frontend, you'd specify publish directory here, e.g., publish = "public"
-  # Since this project is only for functions for now, this can be omitted or left commented.
+  # Specify Python version as an environment variable for the build
+  [build.environment]
+    PYTHON_VERSION = "3.9"
 
-[functions]
-  python_version = "3.9"
-  # You can add environment variables here if needed, e.g.,
-  # [functions."chat-handler"] # Specific function settings
-  #   external_node_modules = ["node-fetch"] # if you were mixing JS functions
+# [functions] section is no longer needed for just python_version here
+# If you needed other function-specific settings, it would go here,
+# but python_version is now a build environment variable.
