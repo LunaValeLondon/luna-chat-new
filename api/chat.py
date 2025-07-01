@@ -1,6 +1,7 @@
 import json
 import os
 import logging
+import requests
 
 # Configure logging for Netlify Functions
 logging.basicConfig(level=logging.INFO)
