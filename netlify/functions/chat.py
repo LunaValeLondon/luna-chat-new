@@ -2,13 +2,14 @@ import json
 import os
 import requests # This will be needed for making API calls to Gemini later
 
-def handler(event, context):
+# Renamed from 'handler' to 'lambda_handler' for Netlify
+def lambda_handler(event, context):
     # Allow CORS for requests from Wix
     headers = {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization" # Add Authorization if you plan to use it
+        "Access-Control-Allow-Headers": "Content-Type, Authorization"
     }
 
     # Handle preflight OPTIONS request from the browser (CORS)
@@ -39,7 +40,7 @@ def handler(event, context):
 
         # --- This is where your AI logic will go later ---
         # For now, let's just echo back the message or a simple response
-        response_message = f"You said: '{user_message}'. (This is from your Python function, ready for Wix!)"
+        response_message = f"You said: '{user_message}'. (This is from your Python function, ready for Netlify!)"
 
         return {
             "statusCode": 200,
