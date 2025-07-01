@@ -2,4 +2,4 @@
   functions = "netlify/functions"
 
   [build.environment]
-    PYTHON_VERSION = "3.9"
+    # PYTHON_VERSION = "3.9"  <-- You can remove or comment this out as it's no longer relevant for Node.js
