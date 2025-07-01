@@ -1,0 +1,14 @@
+[build]
+  functions = "netlify/functions"
+  publish = "public" # You don't have a 'public' folder yet, but Netlify needs a default.
+                     # This won't affect our function deployment.
+
+[functions]
+  python_version = "3.9" # Specify Python version for Netlify
+  node_bundler = "esbuild" # Use esbuild for faster builds (default for Node, but good to be explicit)
+
+# Basic redirect to handle potential root requests if you later add a frontend page
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
