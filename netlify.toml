@@ -1,10 +1,5 @@
 [build]
   functions = "netlify/functions"
-  # Adding a build command, even if it's minimal, can sometimes kickstart Netlify's function detection
-  command = "pip install -r netlify/functions/requirements.txt"
 
   [build.environment]
     PYTHON_VERSION = "3.9"
-
-# Ensure your netlify/functions/chat.py and netlify/functions/requirements.txt are correct.
-# And netlify/functions/__init__.py is still there (empty).
