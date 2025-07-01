@@ -1,0 +1,12 @@
+[build]
+  functions = "netlify/functions"
+  publish = "public" # This is the publish directory for your site, not functions
+
+[build.environment]
+  PYTHON_VERSION = "3.9" # This is the correct way to specify Python version for Netlify functions
+
+# Basic redirect to handle potential root requests if you later add a frontend page
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
