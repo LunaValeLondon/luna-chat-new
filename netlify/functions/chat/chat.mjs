@@ -1,88 +1,74 @@
-// Filename: netlify/functions/chat/chat.js
-import { GoogleGenAI } from '@google/genai'; // This is the CORRECT import for @google/genai
+import { GoogleGenAI } from '@google/genai';
 
-export default async function(event, context) { // Use default export for Netlify functions
-    // Define CORS headers
+// Initialize the Google Generative AI client with your API key
+const API_KEY = process.env.GEMINI_API_KEY;
+if (!API_KEY) {
+    console.error('GEMINI_API_KEY environment variable is not set.');
+    // Return an error Response if API key is missing
+    const errorBody = JSON.stringify({ error: 'Server configuration error: Gemini API key missing.' });
+    return new Response(errorBody, {
+        status: 500,
+        headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*', // CORS header
+        },
+    });
+}
+
+const genAI = new GoogleGenAI({ apiKey: API_KEY });
+
+// The main handler for the Netlify Function
+export default async function(event, context) {
+    // Set up CORS headers
     const headers = {
-        'Access-Control-Allow-Origin': '*', // Allows all origins
-        'Access-Control-Allow-Methods': 'POST, OPTIONS', // Allowed methods for your endpoint
-        'Access-Control-Allow-Headers': 'Content-Type', // Allowed request headers
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*', // Allow all origins for simplicity during development
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
     };
 
-    // Handle OPTIONS preflight request for CORS (important for web browsers)
+    // Handle preflight OPTIONS request for CORS
     if (event.httpMethod === 'OPTIONS') {
-        return {
-            statusCode: 200,
-            headers: headers,
-            body: JSON.stringify({ message: 'CORS preflight successful' }),
-        };
+        return new Response(null, { status: 204, headers: headers }); // No content for preflight success
     }
 
-    // Handle POST request
-    if (event.httpMethod === 'POST') {
-        try {
-            // Parse the request body (assuming it's JSON)
-            const requestBody = JSON.parse(event.body);
-            const userQuery = requestBody.query; // Assuming your frontend sends { "query": "..." }
+    // Only allow POST requests for actual chat
+    if (event.httpMethod !== 'POST') {
+        const errorBody = JSON.stringify({ error: 'Method Not Allowed' });
+        return new Response(errorBody, { status: 405, headers: headers });
+    }
 
-            // Basic validation for the query
-            if (!userQuery || typeof userQuery !== 'string') {
-                return {
-                    statusCode: 400,
-                    headers: headers,
-                    body: JSON.stringify({ error: 'Missing or invalid "query" in request body.' }),
-                };
-            }
+    try {
+        const requestBody = JSON.parse(event.body);
+        const userQuery = requestBody.query;
 
-            // --- Gemini API Integration Starts Here ---
-            // Initialize Gemini API client.
-            // It automatically reads GEMINI_API_KEY from Netlify's environment variables.
-            // Make sure GEMINI_API_KEY is set in your Netlify Site Settings -> Environment variables.
-            const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
-
-            // Get the generative model (using gemini-pro for text generation)
-            const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-
-            // This is your prompt for Gemini, currently just the user's query.
-            // We will add Luna's personality and JSON data here in a later step!
-            const prompt = userQuery;
-
-            // Log the prompt to Netlify Function logs (useful for debugging)
-            console.log("Netlify Function (chat.js): Sending prompt to Gemini:", prompt);
-
-            // Send the prompt to Gemini and get the response
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            const geminiText = response.text(); // Extract the text content from Gemini's response
-
-            // Log Gemini's response to Netlify Function logs
-            console.log("Netlify Function (chat.js): Received response from Gemini:", geminiText);
-
-            // Return Gemini's actual response in the body
-            return {
-                statusCode: 200,
-                headers: headers,
-                body: JSON.stringify({ message: geminiText }),
-            };
-
-        } catch (error) {
-            console.error("Netlify Function (chat.js): Error processing request or calling Gemini:", error);
-            // Return a more informative error for debugging
-            return {
-                statusCode: 500,
-                headers: headers,
-                body: JSON.stringify({
-                    error: 'Internal Server Error: Could not process request or call AI.',
-                    details: error.message || 'Unknown error. Check Netlify function logs for more details.'
-                }),
-            };
+        if (!userQuery) {
+            const errorBody = JSON.stringify({ error: 'Missing "query" in request body.' });
+            return new Response(errorBody, { status: 400, headers: headers });
         }
-    }
 
-    // Return a 405 Method Not Allowed for any HTTP methods other than POST or OPTIONS
-    return {
-        statusCode: 405,
-        headers: headers,
-        body: JSON.stringify({ error: 'Method Not Allowed. Only POST and OPTIONS are supported.' }),
-    };
+        console.log('Received query:', userQuery);
+
+        // For text-only input, use the gemini-pro model
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+        const result = await model.generateContent(userQuery);
+        const response = await result.response;
+        const text = response.text();
+
+        console.log('Gemini response:', text);
+
+        // Construct the success Response object
+        const successBody = JSON.stringify({ response: text });
+        return new Response(successBody, { status: 200, headers: headers });
+
+    } catch (error) {
+        console.error('Error generating content:', error);
+        // Construct the error Response object
+        const errorBody = JSON.stringify({ error: 'Failed to generate content from Gemini API.', details: error.message });
+        return new Response(errorBody, {
+            status: 500,
+            headers: headers,
+        });
+    }
 }
