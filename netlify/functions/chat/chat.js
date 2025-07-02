@@ -1,7 +1,7 @@
 // Filename: netlify/functions/chat/chat.js
-const GoogleGenerativeAI = require('@google/genai').GoogleGenerativeAI;
+import { GoogleGenerativeAI } from '@google/genai'; // Correct ES Module import
 
-exports.handler = async function(event, context) {
+export async function handler(event, context) { // Correct ES Module export for the handler
     // Define CORS headers
     const headers = {
         'Access-Control-Allow-Origin': '*', // Allows all origins
@@ -71,7 +71,7 @@ exports.handler = async function(event, context) {
             return {
                 statusCode: 500,
                 headers: headers,
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     error: 'Internal Server Error: Could not process request or call AI.',
                     details: error.message || 'Unknown error. Check Netlify function logs for more details.'
                 }),
@@ -85,4 +85,4 @@ exports.handler = async function(event, context) {
         headers: headers,
         body: JSON.stringify({ error: 'Method Not Allowed. Only POST and OPTIONS are supported.' }),
     };
-};
+}
