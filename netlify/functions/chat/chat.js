@@ -1,5 +1,5 @@
 // Filename: netlify/functions/chat/chat.js
-const { GoogleGenerativeAI } = require('@google/genai'); // Correct library import
+const { GoogleGenerativeAI } = require('@google/genai').v1beta; // Correct import for the class
 
 exports.handler = async function(event, context) {
     // Define CORS headers
