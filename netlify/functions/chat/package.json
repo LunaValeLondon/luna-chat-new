@@ -17,7 +17,7 @@
     "url": "https://github.com/LunaValeLondon/luna-chat-new/issues"
   },
   "homepage": "https://github.com/LunaValeLondon/luna-chat-new#readme",
-  "type": "module",  <-- ADD THIS LINE (with a comma at the end if there are lines after it)
+  "type": "module",
   "dependencies": {
     "@google/genai": "^1.8.0"
   }
