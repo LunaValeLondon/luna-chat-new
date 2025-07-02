@@ -2,6 +2,9 @@ import { GoogleGenAI } from '@google/genai';
 
 // The main handler for the Netlify Function
 export default async function(event, context) {
+    // --- Log the entire event object for debugging ---
+    console.log('Received event:', JSON.stringify(event, null, 2));
+
     // --- API Key and Environment Variable Check ---
     const API_KEY = process.env.GEMINI_API_KEY;
     if (!API_KEY) {
@@ -29,7 +32,7 @@ export default async function(event, context) {
     };
 
     // Use a safe way to get httpMethod, defaulting to empty string if undefined/null
-    const method = (event.httpMethod || '').toUpperCase(); // ADDED || '' here
+    const method = (event.httpMethod || '').toUpperCase();
 
     // Handle preflight OPTIONS request for CORS
     if (method === 'OPTIONS') {
