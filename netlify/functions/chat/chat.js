@@ -1,4 +1,5 @@
-// netlify/functions/chat/chat.js
+// Filename: netlify/functions/chat/chat.js
+const { GoogleGenerativeAI } = require('@google/genai'); // Correct library import
 
 exports.handler = async function(event, context) {
     // Define CORS headers
@@ -8,7 +9,7 @@ exports.handler = async function(event, context) {
         'Access-Control-Allow-Headers': 'Content-Type', // Allowed request headers
     };
 
-    // Handle OPTIONS preflight request for CORS
+    // Handle OPTIONS preflight request for CORS (important for web browsers)
     if (event.httpMethod === 'OPTIONS') {
         return {
             statusCode: 200,
@@ -22,10 +23,10 @@ exports.handler = async function(event, context) {
         try {
             // Parse the request body (assuming it's JSON)
             const requestBody = JSON.parse(event.body);
-            const query = requestBody.query; // Assuming your frontend sends { "query": "..." }
+            const userQuery = requestBody.query; // Assuming your frontend sends { "query": "..." }
 
             // Basic validation for the query
-            if (!query || typeof query !== 'string') {
+            if (!userQuery || typeof userQuery !== 'string') {
                 return {
                     statusCode: 400,
                     headers: headers,
@@ -33,27 +34,52 @@ exports.handler = async function(event, context) {
                 };
             }
 
-            // --- Your core chat logic would go here ---
-            // For now, let's just echo the query and indicate success.
-            const responseMessage = `Received your query: "${query}". This is a placeholder response from Node.js function.`;
+            // --- Gemini API Integration Starts Here ---
+            // Initialize Gemini API client.
+            // It automatically reads GEMINI_API_KEY from Netlify's environment variables.
+            // Make sure GEMINI_API_KEY is set in your Netlify Site Settings -> Environment variables.
+            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+            // Get the generative model (using gemini-pro for text generation)
+            const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+            // This is your prompt for Gemini, currently just the user's query.
+            // We will add Luna's personality and JSON data here in a later step!
+            const prompt = userQuery;
+
+            // Log the prompt to Netlify Function logs (useful for debugging)
+            console.log("Netlify Function (chat.js): Sending prompt to Gemini:", prompt);
+
+            // Send the prompt to Gemini and get the response
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const geminiText = response.text(); // Extract the text content from Gemini's response
+
+            // Log Gemini's response to Netlify Function logs
+            console.log("Netlify Function (chat.js): Received response from Gemini:", geminiText);
+
+            // Return Gemini's actual response in the body
             return {
                 statusCode: 200,
                 headers: headers,
-                body: JSON.stringify({ message: responseMessage }),
+                body: JSON.stringify({ message: geminiText }),
             };
 
         } catch (error) {
-            console.error("Error parsing request body or processing:", error);
+            console.error("Netlify Function (chat.js): Error processing request or calling Gemini:", error);
+            // Return a more informative error for debugging
             return {
                 statusCode: 500,
                 headers: headers,
-                body: JSON.stringify({ error: 'Internal Server Error: Could not process request.' }),
+                body: JSON.stringify({ 
+                    error: 'Internal Server Error: Could not process request or call AI.',
+                    details: error.message || 'Unknown error. Check Netlify function logs for more details.'
+                }),
             };
         }
     }
 
-    // Return a 405 Method Not Allowed for other HTTP methods
+    // Return a 405 Method Not Allowed for any HTTP methods other than POST or OPTIONS
     return {
         statusCode: 405,
         headers: headers,
