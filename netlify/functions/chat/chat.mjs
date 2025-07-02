@@ -1,7 +1,7 @@
 // Filename: netlify/functions/chat/chat.js
 import { GoogleGenerativeAI } from '@google/genai'; // Correct ES Module import
 
-export async function handler(event, context) { // Correct ES Module export for the handler
+export default async function(event, context) { // Use default export for Netlify functions
     // Define CORS headers
     const headers = {
         'Access-Control-Allow-Origin': '*', // Allows all origins
