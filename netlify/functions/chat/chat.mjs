@@ -28,13 +28,16 @@ export default async function(event, context) {
         'Access-Control-Allow-Headers': 'Content-Type',
     };
 
+    // Use a safe way to get httpMethod, defaulting to empty string if undefined/null
+    const method = (event.httpMethod || '').toUpperCase(); // ADDED || '' here
+
     // Handle preflight OPTIONS request for CORS
-    if (event.httpMethod.toUpperCase() === 'OPTIONS') { // Changed toUpperCase() here
+    if (method === 'OPTIONS') {
         return new Response(null, { status: 204, headers: headers }); // No content for preflight success
     }
 
     // Only allow POST requests for actual chat
-    if (event.httpMethod.toUpperCase() !== 'POST') { // Changed toUpperCase() here
+    if (method !== 'POST') {
         const errorBody = JSON.stringify({ error: 'Method Not Allowed' });
         return new Response(errorBody, { status: 405, headers: headers });
     }
