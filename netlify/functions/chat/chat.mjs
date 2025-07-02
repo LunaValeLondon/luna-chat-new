@@ -1,5 +1,5 @@
 // Filename: netlify/functions/chat/chat.js
-import { GoogleGenerativeAI } from '@google/genai'; // Correct ES Module import
+import { GoogleGenAI } from '@google/genai'; // This is the CORRECT import for @google/genai
 
 export default async function(event, context) { // Use default export for Netlify functions
     // Define CORS headers
@@ -38,7 +38,7 @@ export default async function(event, context) { // Use default export for Netlif
             // Initialize Gemini API client.
             // It automatically reads GEMINI_API_KEY from Netlify's environment variables.
             // Make sure GEMINI_API_KEY is set in your Netlify Site Settings -> Environment variables.
-            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+            const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
 
             // Get the generative model (using gemini-pro for text generation)
             const model = genAI.getGenerativeModel({ model: "gemini-pro" });
