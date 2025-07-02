@@ -2,7 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 
 // The main handler for the Netlify Function
 export default async function(event, context) {
-    // --- API Key and Environment Variable Check (MOVED HERE) ---
+    // --- API Key and Environment Variable Check ---
     const API_KEY = process.env.GEMINI_API_KEY;
     if (!API_KEY) {
         console.error('GEMINI_API_KEY environment variable is not set.');
@@ -20,7 +20,7 @@ export default async function(event, context) {
     // Initialize the Google Generative AI client after API_KEY is confirmed
     const genAI = new GoogleGenAI({ apiKey: API_KEY });
 
-    // Set up CORS headers (these can remain here as they are used throughout)
+    // Set up CORS headers
     const headers = {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*', // Allow all origins for simplicity during development
@@ -29,12 +29,12 @@ export default async function(event, context) {
     };
 
     // Handle preflight OPTIONS request for CORS
-    if (event.httpMethod === 'OPTIONS') {
+    if (event.httpMethod.toUpperCase() === 'OPTIONS') { // Changed toUpperCase() here
         return new Response(null, { status: 204, headers: headers }); // No content for preflight success
     }
 
     // Only allow POST requests for actual chat
-    if (event.httpMethod !== 'POST') {
+    if (event.httpMethod.toUpperCase() !== 'POST') { // Changed toUpperCase() here
         const errorBody = JSON.stringify({ error: 'Method Not Allowed' });
         return new Response(errorBody, { status: 405, headers: headers });
     }
