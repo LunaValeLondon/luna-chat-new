@@ -1,25 +1,26 @@
 import { GoogleGenAI } from '@google/genai';
 
-// Initialize the Google Generative AI client with your API key
-const API_KEY = process.env.GEMINI_API_KEY;
-if (!API_KEY) {
-    console.error('GEMINI_API_KEY environment variable is not set.');
-    // Return an error Response if API key is missing
-    const errorBody = JSON.stringify({ error: 'Server configuration error: Gemini API key missing.' });
-    return new Response(errorBody, {
-        status: 500,
-        headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*', // CORS header
-        },
-    });
-}
-
-const genAI = new GoogleGenAI({ apiKey: API_KEY });
-
 // The main handler for the Netlify Function
 export default async function(event, context) {
-    // Set up CORS headers
+    // --- API Key and Environment Variable Check (MOVED HERE) ---
+    const API_KEY = process.env.GEMINI_API_KEY;
+    if (!API_KEY) {
+        console.error('GEMINI_API_KEY environment variable is not set.');
+        // Return an error Response if API key is missing
+        const errorBody = JSON.stringify({ error: 'Server configuration error: Gemini API key missing.' });
+        return new Response(errorBody, {
+            status: 500,
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*', // CORS header
+            },
+        });
+    }
+
+    // Initialize the Google Generative AI client after API_KEY is confirmed
+    const genAI = new GoogleGenAI({ apiKey: API_KEY });
+
+    // Set up CORS headers (these can remain here as they are used throughout)
     const headers = {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*', // Allow all origins for simplicity during development
